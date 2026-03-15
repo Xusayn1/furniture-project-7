@@ -31,6 +31,7 @@ DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 # ALLOWED_HOSTS = ['furniture7.ezma.uz', 'www.furniture7.ezma.uz']
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = ['https://furniture7.ezma.uz', 'https://www.furniture7.ezma.uz']
 # Application definition
 
 INSTALLED_APPS = [
