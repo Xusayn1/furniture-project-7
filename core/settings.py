@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 
 from decouple import config
+from django.db.models.functions import Cast
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +28,8 @@ SECRET_KEY = config('SECRET_KEY')
 # Use project-specific name to avoid clashes with system-level DEBUG env vars (e.g. "release" from IDEs)
 DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=lambda v: list(map(str.strip, v.split(','))))
+
 
 # Application definition
 
@@ -81,10 +83,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+     'default': {
+         'ENGINE': config('DB_ENGINE'),
+         'NAME': config('DB_NAME'),
+         'USER': config('DB_USER'),
+         'PASSWORD': config('DB_PASSWORD'),
+         'HOST': config('DB_HOST'),
+         'PORT': config('DB_PORT'),
+     }
 }
 
 # Password validation
@@ -145,3 +151,23 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+# HTTPS enforcement
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+#HSTS
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+#Clicking & content sniffing
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+
+try:
+    from .settings_local import *
+except ImportError:
+    pass
