@@ -28,7 +28,8 @@ SECRET_KEY = config('SECRET_KEY')
 # Use project-specific name to avoid clashes with system-level DEBUG env vars (e.g. "release" from IDEs)
 DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['furniture7.ezma.uz', 'www.furniture7.ezma.uz']
+# ALLOWED_HOSTS = ['furniture7.ezma.uz', 'www.furniture7.ezma.uz']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
