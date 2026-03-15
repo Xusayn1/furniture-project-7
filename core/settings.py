@@ -31,7 +31,13 @@ DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 # ALLOWED_HOSTS = ['furniture7.ezma.uz', 'www.furniture7.ezma.uz']
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['https://furniture7.ezma.uz', 'https://www.furniture7.ezma.uz']
+# Allow overriding CSRF trusted origins from environment (comma separated)
+_default_csrf_origins = 'https://furniture7.ezma.uz,https://www.furniture7.ezma.uz'
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default=_default_csrf_origins,
+    cast=lambda v: [origin.strip() for origin in v.split(',') if origin.strip()]
+)
 # Application definition
 
 INSTALLED_APPS = [
@@ -155,9 +161,11 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 # HTTPS enforcement
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+
+# Toggle secure cookie/redirect behavior via env vars so HTTP deployments don't drop the CSRF cookie.
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=not DEBUG, cast=bool)
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=not DEBUG, cast=bool)
 
 #HSTS
 SECURE_HSTS_SECONDS = 31536000

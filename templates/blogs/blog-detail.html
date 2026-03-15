@@ -132,6 +132,7 @@
                                             <h2 class="title-block">{% trans 'Submit comment' %}</h2>
                                             <div id="commentInput">
                                                 <form action="#" method="post" id="commentform">
+                                                    {% csrf_token %}
                                                     <input type="hidden" name="comment_parent" id="comment_parent"
                                                            value="0">
                                                     <div class="row">
