@@ -1,4 +1,5 @@
 {% extends 'layout/base.html' %}
+{% load my_tags %}
 {% load static %}
 
 {% block title %}Products{% endblock %}
@@ -393,14 +394,22 @@
                                                         <div class="item text-center col-md-4">
                                                             <div class="product-miniature js-product-miniature item-one first-item">
                                                                 <div class="thumbnail-container border">
-                                                                    <a href="product-detail.html">
-                                                                        {% for image in product.images.all %}
-                                                                            <img class="img-fluid {% if forloop.first %}image-cover{% else %}image-secondary{% endif %}"
-                                                                                 src="{{ image.image.url }}"
-                                                                                 alt="img">
-                                                                        {% endfor %}
-                                                                    </a>
-                                                                </div>
+                                                                    <a href="{% url 'products:detail' pk=product.id %}">
+                                                                                {% with product.images.all as imgs %}
+                                                                                    {% if imgs %}
+                                                                                        {% for image in imgs %}
+                                                                                            <img class="img-fluid {% if forloop.first %}image-cover{% else %}image-secondary{% endif %}"
+                                                                                                 src="{{ image.image.url }}"
+                                                                                                 alt="{{ product.name }}">
+                                                                                        {% endfor %}
+                                                                                    {% else %}
+                                                                                        <img class="img-fluid image-cover"
+                                                                                             src="{% static 'img/product/1.jpg' %}"
+                                                                                             alt="{{ product.name }}">
+                                                                                    {% endif %}
+                                                                                {% endwith %}
+                                                                            </a>
+                                                                        </div>
                                                                 <div class="product-description">
                                                                     <div class="product-groups">
                                                                         <div class="product-title">
@@ -436,15 +445,19 @@
                                                                               class="formAddToCart">
                                                                             <input type="hidden" name="id_product"
                                                                                    value="1">
-                                                                            <a class="add-to-cart" href="#"
-                                                                               data-button-action="add-to-cart">
-                                                                                <i class="fa fa-shopping-cart"
-                                                                                   aria-hidden="true"></i>
-                                                                            </a>
+                                                                        <a class="add-to-cart"
+                                                                           href="{% url 'products:cart' pk=product.id %}?next={{ request.get_full_path|urlencode }}"
+                                                                           data-button-action="add-to-cart">
+                                                                            <i {% if product|in_cart:request %}style="color: red;"{% endif %}
+                                                                               class="fa fa-shopping-cart"
+                                                                               aria-hidden="true"></i>
+                                                                        </a>
                                                                         </form>
-                                                                        <a class="addToWishlist" href="#" data-rel="1"
-                                                                           onclick="">
+                                                                        <a class="addToWishlist"
+                                                                           href="{% url 'products:wishlist' pk=product.id %}?next={{ request.get_full_path|urlencode }}"
+                                                                           data-rel="1">
                                                                             <i class="fa fa-heart"
+                                                                               {% if product|in_wishlist:request %}style="color: red;"{% endif %}
                                                                                aria-hidden="true"></i>
                                                                         </a>
                                                                         <a href="{% url 'products:detail' pk=product.id %}"
@@ -467,13 +480,21 @@
                                                                 <div class="row">
                                                                     <div class="col-md-4">
                                                                         <div class="thumbnail-container border">
-                                                                            <a href="{% url 'products:detail' pk=product.id %}">
-                                                                                {% for image in product.images.all %}
+                                                                    <a href="{% url 'products:detail' pk=product.id %}">
+                                                                        {% with product.images.all as imgs %}
+                                                                            {% if imgs %}
+                                                                                {% for image in imgs %}
                                                                                     <img class="img-fluid {% if forloop.first %}image-cover{% else %}image-secondary{% endif %}"
                                                                                          src="{{ image.image.url }}"
-                                                                                         alt="img">
+                                                                                         alt="{{ product.name }}">
                                                                                 {% endfor %}
-                                                                            </a>
+                                                                            {% else %}
+                                                                                <img class="img-fluid image-cover"
+                                                                                     src="{% static 'img/product/1.jpg' %}"
+                                                                                     alt="{{ product.name }}">
+                                                                            {% endif %}
+                                                                        {% endwith %}
+                                                                    </a>
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-md-8">
@@ -523,16 +544,18 @@
                                                                             <div class="product-buttons d-flex">
                                                                                 <form action="#" method="post"
                                                                                       class="formAddToCart">
-                                                                                    <a class="add-to-cart" href="#"
-                                                                                       data-button-action="add-to-cart">
-                                                                                        <i class="fa fa-shopping-cart"
-                                                                                           aria-hidden="true"></i>Add to
-                                                                                        cart
-                                                                                    </a>
+                                                                        <a class="add-to-cart" href="#"
+                                                                           data-button-action="add-to-cart">
+                                                                            <i class="fa fa-shopping-cart"
+                                                                               aria-hidden="true"></i>Add to
+                                                                            cart
+                                                                        </a>
                                                                                 </form>
-                                                                                <a class="addToWishlist" href="#"
-                                                                                   data-rel="1" onclick="">
+                                                                                <a class="addToWishlist"
+                                                                                   href="{% url 'products:wishlist' pk=product.id %}?next={{ request.get_full_path|urlencode }}"
+                                                                                   data-rel="1">
                                                                                     <i class="fa fa-heart"
+                                                                                       {% if product|in_wishlist:request %}style="color: red;"{% endif %}
                                                                                        aria-hidden="true"></i>
                                                                                 </a>
                                                                                 <a href="{% url 'products:detail' pk=product.id %}"
@@ -552,51 +575,54 @@
                                             </div>
                                         </div>
 
-                                        <!-- pagination -->
-                                        <div class="pagination">
-                                            <div class="js-product-list-top ">
-                                                <div class="d-flex justify-content-around row">
-                                                    <div class="showing col col-xs-12">
-                                                        <span>SHOWING 1-3 OF 3 ITEM(S)</span>
-                                                    </div>
-                                                    <div class="page-list col col-xs-12">
-                                                        <ul>
-                                                            <li>
-                                                                <a rel="prev" href="#"
-                                                                   class="previous disabled js-search-link">
-                                                                    Previous
-                                                                </a>
-                                                            </li>
-                                                            <li class="current active">
-                                                                <a rel="nofollow" href="#"
-                                                                   class="disabled js-search-link">
-                                                                    1
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a rel="nofollow" href="#"
-                                                                   class="disabled js-search-link">
-                                                                    2
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a rel="nofollow" href="#"
-                                                                   class="disabled js-search-link">
-                                                                    3
-                                                                </a>
-                                                            </li>
-
-                                                            <li>
-                                                                <a rel="next" href="#"
-                                                                   class="next disabled js-search-link">
-                                                                    Next
-                                                                </a>
-                                                            </li>
-                                                        </ul>
+                                        {% if is_paginated %}
+                                            <div class="pagination">
+                                                <div class="js-product-list-top ">
+                                                    <div class="d-flex justify-content-around row">
+                                                        <div class="showing col col-xs-12">
+                                                            <span>
+                                                                SHOWING {{ page_obj.start_index }}-{{ page_obj.end_index }}
+                                                                OF {{ page_obj.paginator.count }} ITEM(S)
+                                                            </span>
+                                                        </div>
+                                                        <div class="page-list col col-xs-12">
+                                                            <ul>
+                                                                {% if page_obj.has_previous %}
+                                                                    <li>
+                                                                        <a rel="prev"
+                                                                           href="?page={{ page_obj.previous_page_number }}"
+                                                                           class="previous js-search-link">
+                                                                            Previous
+                                                                        </a>
+                                                                    </li>
+                                                                {% endif %}
+                                                                {% for num in page_obj.paginator.page_range %}
+                                                                    {% if page_obj.number == num %}
+                                                                        <li class="current active">
+                                                                            <a rel="nofollow" href="?page={{ num }}"
+                                                                               class="js-search-link">{{ num }}</a>
+                                                                        </li>
+                                                                    {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                                                                        <li>
+                                                                            <a rel="nofollow" href="?page={{ num }}"
+                                                                               class="js-search-link">{{ num }}</a>
+                                                                        </li>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                                {% if page_obj.has_next %}
+                                                                    <li>
+                                                                        <a rel="next" href="?page={{ page_obj.next_page_number }}"
+                                                                           class="next js-search-link">
+                                                                            Next
+                                                                        </a>
+                                                                    </li>
+                                                                {% endif %}
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
                                     </div>
 
                                     <!-- end col-md-9-1 -->

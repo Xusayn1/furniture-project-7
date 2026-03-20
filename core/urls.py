@@ -29,6 +29,8 @@ urlpatterns += i18n_patterns(
     path('', include('shared.urls', namespace='shared')),
 )
 
+# Always serve media in dev/server context so images work when DEBUG=False locally.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

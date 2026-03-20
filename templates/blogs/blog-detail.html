@@ -34,7 +34,11 @@
                                     <div class="col-sm-8 col-lg-9 col-md-9 flex-xs-first main-blogs">
                                         <h3>{{ blog.title }}</h3>
                                         <div class="hover-after">
-                                            <img src="{{ blog.image.url }}" alt="img" class="img-fluid">
+                                        {% if blog.image %}
+                                            <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="img-fluid">
+                                        {% else %}
+                                            <img src="{% static 'img/blog/detail.jpg' %}" alt="{{ blog.title }}" class="img-fluid">
+                                        {% endif %}
                                         </div>
                                         <div class="late-item">
                                             <p>
@@ -89,8 +93,13 @@
                                                         <div class="col-md-4">
                                                             <div class="hover-after">
                                                                 <a href="{% url 'blogs:detail' pk=news.id %}">
-                                                                    <img src="{{ news.image.url }}" alt="img"
-                                                                         class="img-fluid">
+                                                                    {% if news.image %}
+                                                                        <img src="{{ news.image.url }}" alt="{{ news.title }}"
+                                                                             class="img-fluid">
+                                                                    {% else %}
+                                                                        <img src="{% static 'img/blog/2.jpg' %}" alt="{{ news.title }}"
+                                                                             class="img-fluid">
+                                                                    {% endif %}
                                                                 </a>
                                                             </div>
                                                             <div class="late-item">

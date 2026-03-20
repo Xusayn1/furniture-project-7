@@ -44,7 +44,11 @@
                                             <div class="list-content row">
                                                 <div class="hover-after col-md-5 col-xs-12">
                                                     <a href="{% url 'blogs:detail' pk=blog.id %}">
-                                                        <img src="{{ blog.image.url }}" alt="img">
+                                                        {% if blog.image %}
+                                                            <img src="{{ blog.image.url }}" alt="{{ blog.title }}">
+                                                        {% else %}
+                                                            <img src="{% static 'img/blog/1.jpg' %}" alt="{{ blog.title }}">
+                                                        {% endif %}
                                                     </a>
                                                 </div>
                                                 <div class="late-item col-md-7 col-xs-12">
@@ -76,23 +80,23 @@
                                                         </a>
                                                     </li>
                                                 {% endif %}
-                                                {% for page in page_obj.paginator.page_range %}
-                                                    {% if page_obj.number == page %}
-                                                        <li class="current active" aria-current="page">
-                                                            <a rel="nofollow" href="?page={{ page }}"
-                                                               class="js-search-link">
-                                                                {{ page }}
-                                                            </a>
-                                                        </li>
-                                                    {% else %}
-                                                        <li>
-                                                            <a rel="nofollow" href="?page={{ page }}"
-                                                               class="js-search-link">
-                                                                {{ page }}
-                                                            </a>
-                                                        </li>
-                                                    {% endif %}
-                                                {% endfor %}
+                                                        {% for page in page_obj.paginator.page_range %}
+                                                            {% if page_obj.number == page %}
+                                                                <li class="current active" aria-current="page">
+                                                                    <a rel="nofollow" href="?page={{ page }}"
+                                                                       class="js-search-link">
+                                                                        {{ page }}
+                                                                    </a>
+                                                                </li>
+                                                            {% elif page >= page_obj.number|add:'-2' and page <= page_obj.number|add:'2' %}
+                                                                <li>
+                                                                    <a rel="nofollow" href="?page={{ page }}"
+                                                                       class="js-search-link">
+                                                                        {{ page }}
+                                                                    </a>
+                                                                </li>
+                                                            {% endif %}
+                                                        {% endfor %}
                                                 {% if page_obj.has_next %}
                                                     <li>
                                                         <a rel="next"
