@@ -380,7 +380,7 @@
                                                     <div class="page-content" id="content">
                                                         <div class="images-container">
                                                             <div class="js-qv-mask mask tab-content border">
-                                                                {% with product.images.all as imgs %}
+                                                                {% with product.gallery_images as imgs %}
                                                                     {% if imgs %}
                                                                         {% for image in imgs %}
                                                                             <div id="item{{ forloop.counter }}"
@@ -402,7 +402,7 @@
                                                                 </div>
                                                             </div>
                                                             <ul class="product-tab nav nav-tabs d-flex">
-                                                                {% with product.images.all as imgs %}
+                                                                {% with product.gallery_images as imgs %}
                                                                     {% if imgs %}
                                                                         {% for image in imgs %}
                                                                             <li class="{% if forloop.first %}active{% endif %} col">
@@ -435,7 +435,7 @@
                                                                                     <div>
                                                                                         <div class="images-container">
                                                                                             <div class="js-qv-mask mask tab-content">
-                                                                                            {% with product.images.all as imgs %}
+                                                                                            {% with product.gallery_images as imgs %}
                                                                                                 {% if imgs %}
                                                                                                     {% for image in imgs %}
                                                                                                         <div id="modal-item{{ forloop.counter }}"
@@ -454,7 +454,7 @@
                                                                                             {% endwith %}
                                                                                             </div>
                                                                                             <ul class="product-tab nav nav-tabs">
-                                                                                            {% with product.images.all as imgs %}
+                                                                                            {% with product.gallery_images as imgs %}
                                                                                                 {% if imgs %}
                                                                                                     {% for image in imgs %}
                                                                                                         <li {% if forloop.first %}class="active"{% endif %}>
@@ -524,44 +524,47 @@
                                                             </div>
                                                         </div>
                                                         <div class="has-border cart-area">
-                                                            <div class="product-quantity">
-                                                                <div class="qty">
-                                                                    <div class="input-group">
-                                                                        <div class="quantity">
-                                                                            <span class="control-label">QTY : </span>
-                                                                            <input type="text" name="qty"
-                                                                                   id="quantity_wanted" value="1"
-                                                                                   class="input-group form-control">
+                                                            <form method="get" action="{% url 'products:cart' pk=product.id %}">
+                                                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                                                <div class="product-quantity">
+                                                                    <div class="qty">
+                                                                        <div class="input-group">
+                                                                            <div class="quantity">
+                                                                                <span class="control-label">QTY : </span>
+                                                                                <input type="number" name="qty"
+                                                                                       id="quantity_wanted" value="1" min="1"
+                                                                                       class="input-group form-control">
 
-                                                                            <span class="input-group-btn-vertical">
-                                                                                <button class="btn btn-touchspin js-touchspin bootstrap-touchspin-up"
-                                                                                        type="button">
-                                                                                    +
+                                                                                <span class="input-group-btn-vertical">
+                                                                                    <button class="btn btn-touchspin js-touchspin bootstrap-touchspin-up"
+                                                                                            type="button">
+                                                                                        +
+                                                                                    </button>
+                                                                                    <button class="btn btn-touchspin js-touchspin bootstrap-touchspin-down"
+                                                                                            type="button">
+                                                                                        -
+                                                                                    </button>
+                                                                                </span>
+                                                                            </div>
+                                                                            <span class="add">
+                                                                                <button class="btn btn-primary add-to-cart add-item"
+                                                                                        data-button-action="add-to-cart"
+                                                                                        type="submit" name="action" value="add">
+                                                                                    <i class="fa fa-shopping-cart"
+                                                                                       aria-hidden="true"></i>
+                                                                                    <span>Add to cart</span>
                                                                                 </button>
-                                                                                <button class="btn btn-touchspin js-touchspin bootstrap-touchspin-down"
-                                                                                        type="button">
-                                                                                    -
-                                                                                </button>
+                                                                                <a class="addToWishlist"
+                                                                                   href="{% url 'products:wishlist' pk=product.id %}?next={{ request.get_full_path|urlencode }}">
+                                                                                    <i class="fa fa-heart"
+                                                                                       {% if product|in_wishlist:request %}style="color: red;"{% endif %}
+                                                                                       aria-hidden="true"></i>
+                                                                                </a>
                                                                             </span>
                                                                         </div>
-                                                                        <span class="add">
-                                                                            <button class="btn btn-primary add-to-cart add-item"
-                                                                                    data-button-action="add-to-cart"
-                                                                                    type="submit">
-                                                                                <i class="fa fa-shopping-cart"
-                                                                                   aria-hidden="true"></i>
-                                                                                <span>Add to cart</span>
-                                                                            </button>
-                                                                            <a class="addToWishlist"
-                                                                               href="{% url 'products:wishlist' pk=product.id %}?next={{ request.get_full_path|urlencode }}">
-                                                                                <i class="fa fa-heart"
-                                                                                   {% if product|in_wishlist:request %}style="color: red;"{% endif %}
-                                                                                   aria-hidden="true"></i>
-                                                                            </a>
-                                                                        </span>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </form>
                                                             <div class="clearfix"></div>
                                                             <p class="product-minimal-quantity">
                                                             </p>

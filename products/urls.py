@@ -6,6 +6,7 @@ from products.views import (
     add_or_remove_from_cart,
     add_or_remove_from_wishlist,
     wishlist_view,
+    cart_view,
 )
 
 app_name = 'products'
@@ -16,4 +17,5 @@ urlpatterns = [
     path('<int:pk>/cart/', add_or_remove_from_cart, name='cart'),
     path('<int:pk>/wishlist/', add_or_remove_from_wishlist, name='wishlist'),
     path('wishlist/', wishlist_view, name='wishlist_page'),
+    path('cart/', cart_view, name='cart_page'),
 ]

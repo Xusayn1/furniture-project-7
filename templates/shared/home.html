@@ -1,12 +1,65 @@
 {% extends 'layout/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load my_tags %}
 {% block title %}Home{% endblock %}
 
 {% block id %}id="home"{% endblock %}
 
 {% block content %}
     <div class="main-content">
+        <div class="container my-5">
+            <h3 class="mb-4">Latest Products</h3>
+            <div class="row">
+                {% for product in home_products %}
+                    <div class="col-md-3 col-sm-6 mb-4">
+                        <div class="product-miniature js-product-miniature item-one first-item">
+                            <div class="thumbnail-container border">
+                                <a href="{% url 'products:detail' pk=product.id %}">
+                                    {% with product.gallery_images as imgs %}
+                                        {% for image in imgs %}
+                                            <img class="img-fluid {% if forloop.first %}image-cover{% else %}image-secondary{% endif %}"
+                                                 src="{{ image.image.url }}" alt="{{ product.name }}">
+                                        {% endfor %}
+                                    {% endwith %}
+                                </a>
+                            </div>
+                            <div class="product-description">
+                                <div class="product-title">
+                                    <a href="{% url 'products:detail' pk=product.id %}">{{ product.name }}</a>
+                                </div>
+                                <div class="product-group-price">
+                                    <div class="product-price-and-shipping">
+                                        {% if product.has_discount %}
+                                            <span style="text-decoration: line-through;" class="price">${{ product.price_usd }}</span>
+                                            <span class="price">${{ product.discount_price_usd }}</span>
+                                        {% else %}
+                                            <span class="price">${{ product.price_usd }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="product-buttons d-flex justify-content-center">
+                                    <a class="add-to-cart"
+                                       href="{% url 'products:cart' pk=product.id %}?action=add&qty=1&next={{ request.get_full_path|urlencode }}"
+                                       data-button-action="add-to-cart">
+                                        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                                    </a>
+                                    <a class="addToWishlist"
+                                       href="{% url 'products:wishlist' pk=product.id %}?next={{ request.get_full_path|urlencode }}"
+                                       data-rel="1">
+                                        <i class="fa fa-heart"
+                                           {% if product|in_wishlist:request %}style="color: red;"{% endif %}
+                                           aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No products available.</p>
+                {% endfor %}
+            </div>
+        </div>
         <div class="wrap-banner">
             <!-- menu category -->
             <div class="container position">

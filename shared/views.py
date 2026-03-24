@@ -4,10 +4,16 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, ListView, TemplateView
 from shared.forms import ContactForm
 from shared.models import Team
+from products.models import Product
 
 
 class HomePageView(TemplateView):
     template_name = 'shared/home.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['home_products'] = Product.objects.filter(is_active=True).prefetch_related('images')[:8]
+        return context
     
 
 

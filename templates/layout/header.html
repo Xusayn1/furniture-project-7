@@ -27,8 +27,8 @@
         <!-- search -->
         <div id="mobile_search" class="d-flex">
             <div id="mobile_search_content">
-                <form method="get" action="#">
-                    <input type="text" name="s" value="" placeholder="Search">
+                <form method="get" action="{% url 'products:list' %}">
+                    <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search">
                     <button type="submit">
                         <i class="fa fa-search"></i>
                     </button>
@@ -37,49 +37,54 @@
             <div class="desktop_cart">
                 <div class="blockcart block-cart cart-preview tiva-toggle">
                     <div class="header-cart tiva-toggle-btn">
-                        <span class="cart-products-count">1</span>
+                        <span class="cart-products-count">{{ cart_count|default:0 }}</span>
                         <i class="fa fa-shopping-cart" aria-hidden="true"></i>
                     </div>
                     <div class="dropdown-content">
                         <div class="cart-content">
-                            <table>
-                                <tbody>
-                                <tr>
-                                    <td class="product-image">
-                                        <a href="product-detail.html">
-                                            <img src="{% static 'img/product/5.jpg' %}" alt="Product">
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <div class="product-name">
-                                            <a href="product-detail.html">Organic Strawberry Fruits</a>
-                                        </div>
-                                        <div>
-                                            2 x
-                                            <span class="product-price">£28.98</span>
-                                        </div>
-                                    </td>
-                                    <td class="action">
-                                        <a class="remove" href="#">
-                                            <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr class="total">
-                                    <td colspan="2">Total:</td>
-                                    <td>£92.96</td>
-                                </tr>
+                            {% if cart_items %}
+                                <table>
+                                    <tbody>
+                                    {% for item in cart_items %}
+                                        <tr>
+                                            <td class="product-image">
+                                                <a href="{% url 'products:detail' pk=item.product.id %}">
+                                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <div class="product-name">
+                                                    <a href="{% url 'products:detail' pk=item.product.id %}">{{ item.product.name }}</a>
+                                                </div>
+                                                <div>
+                                                    {{ item.qty }} x
+                                                    <span class="product-price">${{ item.product.price_usd }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="action">
+                                                <a class="remove" href="{% url 'products:cart' pk=item.product.id %}?action=remove&next={{ request.get_full_path|urlencode }}">
+                                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    <tr class="total">
+                                        <td colspan="2">Total:</td>
+                                        <td>${{ cart_total_usd }}</td>
+                                    </tr>
 
-                                <tr>
-                                    <td colspan="3" class="d-flex justify-content-center">
-                                        <div class="cart-button">
-                                            <a href="cart.html" title="View Cart">View Cart</a>
-                                            <a href="checkout.html" title="Checkout">Checkout</a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
+                                    <tr>
+                                        <td colspan="3" class="d-flex justify-content-center">
+                                            <div class="cart-button">
+                                                <a href="{% url 'products:cart_page' %}" title="View Cart">View Cart</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p class="p-3 mb-0">Cart is empty</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -131,10 +136,9 @@
 
                 <!-- search and acount -->
                 <div class="col-sm-5 col-md-5 d-flex align-items-center justify-content-end" id="search_widget">
-                    <form method="get" action="#">
-
+                    <form method="get" action="{% url 'products:list' %}">
                         <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
-                        <input type="text" name="s" value="" placeholder="Search" class="ui-autocomplete-input"
+                        <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search" class="ui-autocomplete-input"
                                autocomplete="off">
                         <button type="submit">
                             <i class="fa fa-search"></i>
@@ -153,14 +157,14 @@
                             <div class="account-list-content">
                                 {% if request.user.is_authenticated %}
                                     <div>
-                                        <a class="login" href="{% url 'users:account' %}l" rel="nofollow"
+                                        <a class="login" href="{% url 'users:account' %}" rel="nofollow"
                                            title="Log in to your customer account">
                                             <i class="fa fa-cog"></i>
                                             <span>My Account</span>
                                         </a>
                                     </div>
                                     <div>
-                                        <a class="login" href="" rel="nofollow"
+                                        <a class="login" href="{% url 'users:logout' %}" rel="nofollow"
                                            title="Log out from account">
                                             <i class="fa fa-sign-in"></i>
                                             <span>Sign out</span>
@@ -192,7 +196,7 @@
                                 <div class="link_wishlist">
                                     <a href="{% url 'products:wishlist_page' %}" title="My Wishlists">
                                         <i class="fa fa-heart"></i>
-                                        <span>My Wishlists</span>
+                                        <span>My Wishlists ({{ wishlist_count|default:0 }})</span>
                                     </a>
                                 </div>
                                 <div id="desktop_currency_selector"
@@ -230,49 +234,54 @@
                     <div class="desktop_cart">
                         <div class="blockcart block-cart cart-preview tiva-toggle">
                             <div class="header-cart tiva-toggle-btn">
-                                <span class="cart-products-count">1</span>
+                                <span class="cart-products-count">{{ cart_count|default:0 }}</span>
                                 <i class="fa fa-shopping-cart" aria-hidden="true"></i>
                             </div>
                             <div class="dropdown-content">
                                 <div class="cart-content">
-                                    <table>
-                                        <tbody>
-                                        <tr>
-                                            <td class="product-image">
-                                                <a href="product-detail.html">
-                                                    <img src="{% static 'img/product/5.jpg' %}" alt="Product">
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <div class="product-name">
-                                                    <a href="product-detail.html">Organic Strawberry Fruits</a>
-                                                </div>
-                                                <div>
-                                                    2 x
-                                                    <span class="product-price">£28.98</span>
-                                                </div>
-                                            </td>
-                                            <td class="action">
-                                                <a class="remove" href="#">
-                                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr class="total">
-                                            <td colspan="2">Total:</td>
-                                            <td>£92.96</td>
-                                        </tr>
+                                    {% if cart_items %}
+                                        <table>
+                                            <tbody>
+                                            {% for item in cart_items %}
+                                                <tr>
+                                                    <td class="product-image">
+                                                        <a href="{% url 'products:detail' pk=item.product.id %}">
+                                                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        <div class="product-name">
+                                                            <a href="{% url 'products:detail' pk=item.product.id %}">{{ item.product.name }}</a>
+                                                        </div>
+                                                        <div>
+                                                            {{ item.qty }} x
+                                                            <span class="product-price">${{ item.product.price_usd }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="action">
+                                                        <a class="remove" href="{% url 'products:cart' pk=item.product.id %}?action=remove&next={{ request.get_full_path|urlencode }}">
+                                                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            <tr class="total">
+                                                <td colspan="2">Total:</td>
+                                                <td>${{ cart_total_usd }}</td>
+                                            </tr>
 
-                                        <tr>
-                                            <td colspan="3" class="d-flex justify-content-center">
-                                                <div class="cart-button">
-                                                    <a href="cart.html" title="View Cart">View Cart</a>
-                                                    <a href="checkout.html" title="Checkout">Checkout</a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
+                                            <tr>
+                                                <td colspan="3" class="d-flex justify-content-center">
+                                                    <div class="cart-button">
+                                                        <a href="{% url 'products:cart_page' %}" title="View Cart">View Cart</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p class="p-3 mb-0">Cart is empty</p>
+                                    {% endif %}
                                 </div>
                             </div>
 

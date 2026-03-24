@@ -1,7 +1,7 @@
 import threading
 
 from django.contrib import messages
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, logout
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -108,3 +108,9 @@ class AccountView(TemplateView):
 
 class ResetPasswordView(TemplateView):
     template_name = 'users/reset-password.html'
+
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect('shared:home')

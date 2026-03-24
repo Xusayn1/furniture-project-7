@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from types import SimpleNamespace
 
 from shared.models import BaseModel
 
@@ -248,6 +249,19 @@ class Product(BaseModel):
         return self.color_quantities.aggregate(
             total=models.Sum('quantity')
         )['total'] or 0
+
+    @property
+    def gallery_images(self):
+        """
+        Return gallery images if present; otherwise fall back to the main image
+        so templates always have at least one image to render.
+        """
+        images = list(self.images.all())
+        if images:
+            return images
+        if self.image:
+            return [SimpleNamespace(image=self.image, alt_text=self.name)]
+        return []
 
     class Meta:
         db_table = "product"

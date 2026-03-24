@@ -53,7 +53,7 @@
                                                             <div class="product-miniature item-one first-item">
                                                                 <div class="thumbnail-container border">
                                                                     <a href="{% url 'products:detail' pk=product.id %}">
-                                                                        {% with product.images.all as imgs %}
+                                                                        {% with product.gallery_images as imgs %}
                                                                             {% if imgs %}
                                                                                 {% for image in imgs %}
                                                                                     <img class="img-fluid {% if forloop.first %}image-cover{% else %}image-secondary{% endif %}"
@@ -97,7 +97,7 @@
                                                                     </div>
                                                                     <div class="product-buttons d-flex justify-content-center">
                                                                         <a class="add-to-cart"
-                                                                           href="{% url 'products:cart' pk=product.id %}?next={{ request.get_full_path|urlencode }}"
+                                                                           href="{% url 'products:cart' pk=product.id %}?action=add&qty=1&next={{ request.get_full_path|urlencode }}"
                                                                            data-button-action="add-to-cart">
                                                                             <i {% if product|in_cart:request %}style="color: red;"{% endif %}
                                                                                class="fa fa-shopping-cart"
