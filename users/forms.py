@@ -13,6 +13,18 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('email', 'full_name', 'username')
 
 
+class AccountUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('full_name', 'username', 'email', 'phone_number')
+
+
+class ResetPasswordForm(forms.Form):
+    current_password = forms.CharField(max_length=128)
+    new_password = forms.CharField(max_length=128)
+    confirm_password = forms.CharField(max_length=128)
+
+
 class CustomAuthenticationForm(forms.Form):
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
