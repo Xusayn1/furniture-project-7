@@ -18,10 +18,17 @@ from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include, re_path
-from django.views.static import serve
+from django.urls import path, include
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
-urlpatterns = []
+from core import views
+
+urlpatterns = [
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),  # raw OpenAPI JSON
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),  # Swagger UI
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),  # ReDoc UI
+    path('api/', include('api.urls', namespace='api')),
+]
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
     path('blogs/', include('blogs.urls', namespace='blogs')),
@@ -30,18 +37,10 @@ urlpatterns += i18n_patterns(
     path('', include('shared.urls', namespace='shared')),
 )
 
-# Always serve media when using Django directly (runserver), even if DEBUG=False.
-# In production you should serve /media via the web server instead.
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-else:
-    urlpatterns += [
-        re_path(
-            rf"^{settings.MEDIA_URL.lstrip('/')}(?P<path>.*)$",
-            serve,
-            {"document_root": settings.MEDIA_ROOT},
-        )
-    ]
-
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = views.handler404
+handler403 = views.handler403
+handler500 = views.handler500

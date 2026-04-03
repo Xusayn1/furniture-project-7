@@ -19,7 +19,7 @@ from users.utils import email_verification_token
 User = get_user_model()
 
 
-class RegisterFormView(LoginRequiredMixin, FormView):
+class RegisterFormView(FormView):
     template_name = 'users/register.html'
     form_class = CustomUserCreationForm
     success_url = reverse_lazy('users:login')

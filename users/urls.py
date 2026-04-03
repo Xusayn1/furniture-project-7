@@ -12,4 +12,4 @@ urlpatterns = [
     path('account/', AccountUpdateView.as_view(), name='account'),
     path('reset-password/', ResetPasswordFormView.as_view(), name='reset-password'),
     path('verify-email/<uidb64>/<token>/', verify_email_view, name='verify-email'),
-]
+] 

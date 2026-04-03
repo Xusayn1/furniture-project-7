@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -126,3 +127,29 @@ class Blog(BaseModel):
         db_table = 'blogs'
         verbose_name = _("Blog")
         verbose_name_plural = _("Blogs")
+
+
+class Post(BaseModel):
+    title = models.CharField(
+        max_length=255,
+        verbose_name=_("Title")
+    )
+    content = models.TextField(verbose_name=_("Content"))
+    featured = models.BooleanField(
+        default=False,
+        verbose_name=_("Featured")
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='posts',
+        verbose_name=_("Author")
+    )
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        db_table = "posts"
+        verbose_name = _("Post")
+        verbose_name_plural = _("Posts")

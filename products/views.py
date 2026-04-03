@@ -1,7 +1,9 @@
+from decimal import Decimal
+
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, TemplateView
 
 from products.models import Product, ProductCategory, ProductTag, ProductColor, Manufacture
 
@@ -53,21 +55,40 @@ class ProductDetailView(DetailView):
 
 
 def add_or_remove_from_cart(request, pk):
-    cart = request.session.get('cart', [])
-    # session = {
-    #     'cart': {
-    #         1: {
-    #             "quantity": 2,
-    #             "color": 1
-    #         }
-    #     }
-    # }
-    if pk in cart:
-        cart.remove(pk)
-    else:
-        cart.append(pk)
+    """
+    Add, remove or adjust quantities in the session cart.
+    Cart is stored as {product_id: qty}.
+    """
+    cart = request.session.get('cart', {})
+    if not isinstance(cart, dict):
+        cart = {}
+
+    product_key = str(pk)
+    action = request.GET.get('action', 'toggle')
+    try:
+        qty = max(int(request.GET.get('qty', 1)), 1)
+    except (TypeError, ValueError):
+        qty = 1
+
+    if action == 'add':
+        cart[product_key] = cart.get(product_key, 0) + qty
+    elif action == 'decrease':
+        if product_key in cart:
+            new_qty = cart[product_key] - qty
+            if new_qty > 0:
+                cart[product_key] = new_qty
+            else:
+                cart.pop(product_key, None)
+    elif action == 'remove':
+        cart.pop(product_key, None)
+    else:  # toggle behaviour
+        if product_key in cart:
+            cart.pop(product_key, None)
+        else:
+            cart[product_key] = qty
 
     request.session['cart'] = cart
+    request.session.modified = True
     next_url = request.GET.get('next', reverse_lazy('products:list'))
     return redirect(next_url)
 
@@ -102,10 +123,28 @@ class WishlistListView(ListView):
         return Product.objects.filter(id__in=wishlist, is_active=True)
 
 
-class CartListView(ListView):
+class CartListView(TemplateView):
     template_name = 'products/cart.html'
-    context_object_name = 'products'
 
-    def get_queryset(self):
-        cart = self.request.session.get('cart', [])
-        return Product.objects.filter(id__in=cart, is_active=True)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cart = self.request.session.get('cart', {})
+        if not isinstance(cart, dict):
+            cart = {}
+
+        product_ids = [int(pid) for pid in cart.keys()]
+        products = Product.objects.filter(id__in=product_ids, is_active=True)
+        product_map = {str(p.id): p for p in products}
+
+        items = []
+        total = Decimal('0')
+        for pid, qty in cart.items():
+            product = product_map.get(str(pid))
+            if not product:
+                continue
+            subtotal = product.price_usd * qty
+            total += subtotal
+            items.append({'product': product, 'qty': qty, 'subtotal': subtotal})
+
+        context.update({'items': items, 'total': total})
+        return context

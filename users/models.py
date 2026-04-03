@@ -1,5 +1,6 @@
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -71,3 +72,24 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
         db_table = 'users'
         verbose_name = _("User")
         verbose_name_plural = _("Users")
+
+
+class Profile(BaseModel):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='profile',
+        verbose_name=_("User")
+    )
+    is_premium = models.BooleanField(
+        default=False,
+        verbose_name=_("Is premium")
+    )
+
+    def __str__(self):
+        return f"Profile of {self.user.email}"
+
+    class Meta:
+        db_table = 'profiles'
+        verbose_name = _("Profile")
+        verbose_name_plural = _("Profiles")

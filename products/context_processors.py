@@ -10,7 +10,12 @@ def cart_and_wishlist(request):
     """
     session = request.session
     wishlist_ids = session.get("wishlist", [])
+    if not isinstance(wishlist_ids, list):
+        wishlist_ids = []
+
     cart = session.get("cart", {})
+    if not isinstance(cart, dict):
+        cart = {}
 
     cart_items = []
     total_usd = Decimal("0")
@@ -28,7 +33,7 @@ def cart_and_wishlist(request):
 
     return {
         "cart_items": cart_items,
-        "cart_count": sum(cart.values()) if isinstance(cart, dict) else 0,
+        "cart_count": sum(cart.values()),
         "cart_total_usd": total_usd,
-        "wishlist_count": len(wishlist_ids) if isinstance(wishlist_ids, list) else 0,
+        "wishlist_count": len(wishlist_ids),
     }
